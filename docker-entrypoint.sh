@@ -45,4 +45,4 @@ echo ""
 echo "[*] Starting Voice Bot on port ${GRADIO_SERVER_PORT:-7860}..."
 echo ""
 
-exec python /app/app.py "$@"
+exec python3 /app/app.py "$@"

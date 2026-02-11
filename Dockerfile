@@ -40,7 +40,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git-lfs \
     ffmpeg \
     libsndfile1 \
-    libgl1-mesa-glv \
+    libgl1-mesa-glx \
     libglib2.0-0 \
     curl \
     && git lfs install \
@@ -84,9 +84,9 @@ COPY download_model.py /app/
 # Create directories
 RUN mkdir -p /app/outputs
 
-# Copy and prepare entrypoint
+# Copy and prepare entrypoint (sed fixes Windows CRLF line endings)
 COPY docker-entrypoint.sh /app/
-RUN chmod +x /app/docker-entrypoint.sh
+RUN sed -i 's/\r$//' /app/docker-entrypoint.sh && chmod +x /app/docker-entrypoint.sh
 
 # ---------------------------------------------------------------------------
 # Runtime configuration
