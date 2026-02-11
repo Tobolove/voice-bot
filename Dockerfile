@@ -64,9 +64,13 @@ RUN pip install --no-cache-dir \
     torchaudio>=2.1.0 \
     --index-url https://download.pytorch.org/whl/cu121
 
-# 2. IndexTTS-2-Demo dependencies (filter out deepspeed — it requires nvcc
-#    from the CUDA devel image and is optional for inference)
-RUN grep -v -i "deepspeed" /app/IndexTTS-2-Demo/requirements.txt > /tmp/indextts-requirements.txt \
+# 2. IndexTTS-2-Demo dependencies
+#    Filter out packages that break the build:
+#    - deepspeed: requires nvcc (CUDA devel image), optional for inference
+#    - WeTextProcessing/wetext/pynini: requires OpenFst C++ lib, optional text normalization
+#    - Cython: pinned version conflicts, already satisfied by build-essential
+RUN grep -v -i -E "deepspeed|WeTextProcessing|wetext|pynini|Cython" /app/IndexTTS-2-Demo/requirements.txt > /tmp/indextts-requirements.txt \
+    && pip install --no-cache-dir Cython \
     && pip install --no-cache-dir -r /tmp/indextts-requirements.txt \
     && rm /tmp/indextts-requirements.txt
 
