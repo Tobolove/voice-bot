@@ -1,0 +1,49 @@
+# =============================================================================
+# IndexTTS-2 Voice Bot - Docker Compose
+# =============================================================================
+# Usage:
+#   docker compose up --build        # Build and start (first time)
+#   docker compose up -d             # Start in background
+#   docker compose down              # Stop
+#   docker compose logs -f           # View logs
+#
+# Prerequisites:
+#   - Docker with Docker Compose v2
+#   - NVIDIA Container Toolkit (for GPU support)
+#     Install: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
+#
+# The model checkpoints (~5GB) are stored in a named Docker volume and
+# automatically downloaded on first launch.
+# =============================================================================
+
+services:
+  tts-voice-bot:
+    container_name: tts-voice-bot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "9871:7860"
+    volumes:
+      # Persist model checkpoints across container restarts
+      - tts-checkpoints:/app/IndexTTS-2-Demo/checkpoints
+      # Persist generated audio outputs on the host
+      - ./outputs:/app/outputs
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - GRADIO_SERVER_NAME=0.0.0.0
+      - GRADIO_SERVER_PORT=7860
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+    # Pass --auto-load to automatically load the model on startup
+    command: ["--auto-load"]
+
+volumes:
+  tts-checkpoints:
+    name: tts-voice-bot-checkpoints

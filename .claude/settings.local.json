@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:index-tts.github.io)",
+      "WebFetch(domain:dev.to)",
+      "Bash(pip install:*)",
+      "Bash(git clone:*)",
+      "Bash(huggingface-cli download:*)",
+      "Bash(C:\\\\Users\\\\tobia\\\\anaconda3\\\\python.exe:*)",
+      "Bash(cmd /c \"C:\\\\Users\\\\tobia\\\\anaconda3\\\\python.exe -c \"\"from huggingface_hub import snapshot_download; snapshot_download\\(''IndexTeam/IndexTTS-2'', local_dir=r''c:\\\\Users\\\\tobia\\\\projects\\\\Voice_Bot\\\\IndexTTS-2-Demo\\\\checkpoints''\\)\"\"\")"
+    ]
+  }
+}

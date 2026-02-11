@@ -1,0 +1,31 @@
+# IndexTTS-2 Voice Bot Dependencies
+# ===================================
+
+# Core ML frameworks
+torch>=2.1.0
+torchaudio>=2.1.0
+
+# Hugging Face ecosystem
+transformers>=4.35.0
+huggingface-hub[cli,hf_xet]>=0.20.0
+safetensors>=0.4.0
+
+# Audio processing
+soundfile>=0.12.1
+librosa>=0.10.1
+scipy>=1.11.0
+numpy>=1.24.0
+
+# Web interface
+gradio>=4.44.0
+
+# Configuration
+pyyaml>=6.0
+omegaconf>=2.3.0
+
+# Utilities
+tqdm>=4.66.0
+einops>=0.7.0
+
+# Optional: DeepSpeed for acceleration (uncomment if needed)
+# deepspeed>=0.12.0

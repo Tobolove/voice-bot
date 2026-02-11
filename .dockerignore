@@ -1,0 +1,34 @@
+# Model checkpoints (will be downloaded at runtime or mounted as volume)
+IndexTTS-2-Demo/checkpoints/
+checkpoints/
+
+# Generated outputs
+outputs/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+
+# Git
+.git/
+.gitignore
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Windows setup scripts (not needed in Linux container)
+setup.bat
+setup.ps1
+
+# Claude config
+.claude/
+
+# OS files
+Thumbs.db
+.DS_Store
