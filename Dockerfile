@@ -1,10 +1,11 @@
 # =============================================================================
 # IndexTTS-2 Voice Bot - Docker Image
 # =============================================================================
-# Multi-stage build for an optimized TTS inference container with GPU support.
+# Self-contained build that clones the IndexTTS-2-Demo HF Space at build time,
+# so this image can be built on any machine — no local setup required.
 #
 # Base image: NVIDIA CUDA 12.1 runtime with cuDNN 8 on Ubuntu 22.04
-# Python: 3.11
+# Python: 3.10 (Ubuntu 22.04 default)
 # GPU: NVIDIA CUDA-compatible GPU required for inference
 #
 # Build:
@@ -30,21 +31,28 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # System dependencies
 # ---------------------------------------------------------------------------
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.11 \
-    python3.11-dev \
-    python3.11-venv \
+    python3 \
+    python3-dev \
     python3-pip \
+    python3-venv \
+    build-essential \
     git \
     git-lfs \
     ffmpeg \
     libsndfile1 \
+    libgl1-mesa-glv \
+    libglib2.0-0 \
     curl \
     && git lfs install \
-    && update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 \
-    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+
+# ---------------------------------------------------------------------------
+# Clone IndexTTS-2-Demo from Hugging Face Space (inference code + structure)
+# ---------------------------------------------------------------------------
+RUN git clone --depth 1 https://huggingface.co/spaces/IndexTeam/IndexTTS-2-Demo /app/IndexTTS-2-Demo \
+    && rm -rf /app/IndexTTS-2-Demo/.git
 
 # ---------------------------------------------------------------------------
 # Python dependencies (installed in dependency order for better layer caching)
@@ -56,9 +64,10 @@ RUN pip install --no-cache-dir \
     torchaudio>=2.1.0 \
     --index-url https://download.pytorch.org/whl/cu121
 
-# 2. IndexTTS-2-Demo dependencies
-COPY IndexTTS-2-Demo/requirements.txt /tmp/indextts-requirements.txt
-RUN pip install --no-cache-dir -r /tmp/indextts-requirements.txt \
+# 2. IndexTTS-2-Demo dependencies (filter out deepspeed — it requires nvcc
+#    from the CUDA devel image and is optional for inference)
+RUN grep -v -i "deepspeed" /app/IndexTTS-2-Demo/requirements.txt > /tmp/indextts-requirements.txt \
+    && pip install --no-cache-dir -r /tmp/indextts-requirements.txt \
     && rm /tmp/indextts-requirements.txt
 
 # 3. App-level dependencies (many overlap with above, pip will skip duplicates)
@@ -69,16 +78,10 @@ RUN pip install --no-cache-dir -r /tmp/app-requirements.txt \
 # ---------------------------------------------------------------------------
 # Application code
 # ---------------------------------------------------------------------------
-
-# Copy the IndexTTS-2-Demo source (checkpoints excluded via .dockerignore)
-COPY IndexTTS-2-Demo/ /app/IndexTTS-2-Demo/
-
-# Copy application files
 COPY app.py /app/
 COPY download_model.py /app/
-COPY voice.mp3 /app/
 
-# Create outputs directory
+# Create directories
 RUN mkdir -p /app/outputs
 
 # Copy and prepare entrypoint
@@ -89,7 +92,7 @@ RUN chmod +x /app/docker-entrypoint.sh
 # Runtime configuration
 # ---------------------------------------------------------------------------
 
-# Checkpoints volume - persists model weights across container restarts
+# Checkpoints volume — persists model weights across container restarts
 VOLUME /app/IndexTTS-2-Demo/checkpoints
 
 EXPOSE 7860

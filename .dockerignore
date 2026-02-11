@@ -1,5 +1,7 @@
-# Model checkpoints (will be downloaded at runtime or mounted as volume)
-IndexTTS-2-Demo/checkpoints/
+# IndexTTS-2-Demo is cloned at build time from HF — exclude local copy entirely
+IndexTTS-2-Demo/
+
+# Model checkpoints (downloaded at runtime via Docker volume)
 checkpoints/
 
 # Generated outputs
@@ -32,3 +34,6 @@ setup.ps1
 # OS files
 Thumbs.db
 .DS_Store
+
+# Voice sample (user uploads via Gradio UI)
+voice.mp3
