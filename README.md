@@ -58,6 +58,61 @@ Open http://localhost:7860 in your browser.
 | Top P | 0.9 | Nucleus sampling |
 | Top K | 50 | Vocabulary limit |
 
+## Docker (Recommended for Remote Deployment)
+
+Run the Voice Bot in a Docker container on any Linux machine with an NVIDIA GPU — no manual Python setup needed. Model checkpoints are automatically downloaded on first launch and persisted in a Docker volume.
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) with Docker Compose v2
+- [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) (for GPU passthrough)
+
+### Quick Start
+
+```bash
+# Build the image and start the container (first run downloads ~5GB model)
+docker compose up --build
+
+# Or run in the background
+docker compose up --build -d
+```
+
+The web UI will be available at **http://\<your-ip\>:9871**.
+
+### Docker Commands
+
+| Command | Description |
+|---------|-------------|
+| `docker compose up --build` | Build and start (first time) |
+| `docker compose up -d` | Start in background |
+| `docker compose down` | Stop the container |
+| `docker compose logs -f` | Follow live logs |
+| `docker compose restart` | Restart the container |
+
+### Details
+
+| Setting | Value |
+|---------|-------|
+| Container name | `tts-voice-bot` |
+| Host port | `9871` |
+| Container port | `7860` |
+| GPU | All available NVIDIA GPUs |
+| Model storage | Docker volume `tts-voice-bot-checkpoints` |
+| Generated audio | Mounted at `./outputs` on the host |
+
+The container runs with `--auto-load` by default, so the TTS model is loaded into memory at startup and ready to use immediately.
+
+### Removing Model Data
+
+The model checkpoints are stored in a named Docker volume. To delete them and reclaim ~5GB of disk space:
+
+```bash
+docker compose down
+docker volume rm tts-voice-bot-checkpoints
+```
+
+---
+
 ## Requirements
 
 - Python 3.10+
@@ -91,15 +146,19 @@ cd .. && python app.py
 
 ```
 Voice_Bot/
-├── app.py              # Main Gradio interface
-├── setup.bat           # Windows setup (double-click)
-├── setup.ps1           # PowerShell setup script
-├── requirements.txt    # Python dependencies
-├── voice.mp3           # Your voice sample
-├── outputs/            # Generated audio files
-└── IndexTTS-2-Demo/    # Cloned HF Space (after setup)
-    ├── indextts/       # TTS module
-    └── checkpoints/    # Model weights
+├── app.py                # Main Gradio interface
+├── setup.bat             # Windows setup (double-click)
+├── setup.ps1             # PowerShell setup script
+├── requirements.txt      # Python dependencies
+├── voice.mp3             # Your voice sample
+├── Dockerfile            # Container image definition
+├── docker-compose.yml    # Docker orchestration config
+├── docker-entrypoint.sh  # Container startup script
+├── .dockerignore         # Files excluded from Docker build
+├── outputs/              # Generated audio files
+└── IndexTTS-2-Demo/      # Cloned HF Space (after setup)
+    ├── indextts/         # TTS module
+    └── checkpoints/      # Model weights (~5GB)
 ```
 
 ## Credits
